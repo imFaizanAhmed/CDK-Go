@@ -6,11 +6,11 @@ import (
 )
 
 type App struct {
-	apiHandler *api.ApiHandler
+	ApiHandler *api.ApiHandler
 }
 
 func NewApp() *App {
 	db := database.NewDynamoDBClient()
 	apiHandler := api.NewApiHandler(db)
-	return &App{apiHandler: apiHandler}
+	return &App{ApiHandler: apiHandler}
 }

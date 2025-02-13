@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-cdk-go/awscdk/v2"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsdynamodb"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
@@ -20,11 +21,21 @@ func NewAwsStack(scope constructs.Construct, id string, props *AwsStackProps) aw
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
-	awslambda.NewFunction(stack, jsii.String("MyLambdaFunction"), &awslambda.FunctionProps{
+	table := awsdynamodb.NewTable(stack, jsii.String("myUserTable"), &awsdynamodb.TableProps{
+		PartitionKey: &awsdynamodb.Attribute{
+			Name: jsii.String("username"),
+			Type: awsdynamodb.AttributeType_STRING,
+		},
+		TableName: jsii.String("userTable"),
+	})
+
+	myFunction := awslambda.NewFunction(stack, jsii.String("MyLambdaFunction"), &awslambda.FunctionProps{
 		Runtime: awslambda.Runtime_PROVIDED_AL2023(),
 		Handler: jsii.String("main"),
 		Code:    awslambda.Code_FromAsset(jsii.String("lambda/main.zip"), nil),
 	})
+
+	table.GrantReadWriteData(myFunction)
 
 	return stack
 }
